@@ -1,37 +1,88 @@
 const { Telegraf } = require('telegraf')
 const { message } = require('telegraf/filters')
+import { NextResponse } from 'next/server'
+import OpenAI from "openai";
 
+
+const openai = new OpenAI({ apiKey:process.env.OPEN_AI_API_KEY});
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-// bot.on(message('text'), async (ctx) => {
-//     // Explicit usage
-//     let chatID = ctx.message.chat.id
-//     let message = ctx.message.text
-//     console.log(message)
-//     await ctx.telegram.sendMessage(chatID, `Hello ${ctx.message.from.first_name}`)
-//     //console.log(ctx)
-  
-//     // Using context shortcut
-//     //await ctx.reply(`Hello ${ctx.state.role}`)
-//   })
+// Function to get a response from OpenAI
+async function getAIResponse(query) {
+  const completion = await openai.chat.completions.create({
+    messages: [
+      {"role": "system", "content": "You are a helpful assistant." },
+      {"role": "user", "content": query},
+    ],
+      model: "gpt-3.5-turbo",
+  });
 
-// adding for updating webhook url
+  return completion.choices[0].message.content
+}
 
-export async function GET() {
-    return Response.json({ reply:"Hi from the api. You sent a get request" })
-  }
+// export async function POST(request) {
+//   const data = await request.json()
+//   const message = data.message.text
+//   const reply = await getAIResponse(message)
+//   console.log(reply.message.content)
+//   return NextResponse.json({message: "success"})
+// }
 
-export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    try {
-      // await bot.handleUpdate(req.body);  // Process the update
-      console.log(req.body)
-      res.status(200).send('Got it. You sent a post request.');
-    } catch (err) {
-      console.error(err);
-      res.status(500).send('Internal Server Error');
-    }
-  } else {
-    res.status(405).send('Method Not Allowed');
+// Named export for the POST method
+export async function POST(request) {
+  try {
+    const data = await request.json();
+    const chatId = data.message.chat.id; // Get the chat ID from the incoming Telegram message
+    const text = data.message.text; // Get the text of the message
+    console.log(`user query: ${text}`)
+    const replyText = await getAIResponse(text); // Get the AI response
+    console.log(`replyText: ${replyText}`)
+
+    // Using Telegraf to send a message back to the Telegram chat
+    await bot.telegram.sendMessage(chatId, replyText);
+
+    // Return a success message as HTTP response
+    return new NextResponse.json({ message: "success" }, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    return new NextResponse.json({ error: "Internal Server Error" }, {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 }
+
+/*
+
+Telegram webhook response 
+
+{
+  update_id: 45294786,
+  message: {
+    message_id: 14,
+    from: {
+      id: 900885905,
+      is_bot: false,
+      first_name: 'Phas0ruk',
+      username: 'phas0ruk',
+      language_code: 'en'
+    },
+    chat: {
+      id: 900885905,
+      first_name: 'Phas0ruk',
+      username: 'phas0ruk',
+      type: 'private'
+    },
+    date: 1701274414,
+    text: 'are you alive?'
+  }
+}
+
+*/
