@@ -22,9 +22,10 @@ async function getAIResponse(query) {
 
 // export async function POST(request) {
 //   const data = await request.json()
-//   const message = data.message.text
-//   const reply = await getAIResponse(message)
-//   console.log(reply.message.content)
+//   console.log(data)
+//   // const message = data.message.text
+//   //const reply = await getAIResponse(message)
+//   //console.log(reply.message.content)
 //   return NextResponse.json({message: "success"})
 // }
 
@@ -32,17 +33,18 @@ async function getAIResponse(query) {
 export async function POST(request) {
   try {
     const data = await request.json();
+    // console.log(`data:${data}`)
     const chatId = data.message.chat.id; // Get the chat ID from the incoming Telegram message
     const text = data.message.text; // Get the text of the message
-    console.log(`user query: ${text}`)
+    // console.log(`user query: ${text}`)
     const replyText = await getAIResponse(text); // Get the AI response
-    console.log(`replyText: ${replyText}`)
+    // console.log(`replyText: ${replyText}`)
 
     // Using Telegraf to send a message back to the Telegram chat
     await bot.telegram.sendMessage(chatId, replyText);
 
     // Return a success message as HTTP response
-    return new NextResponse.json({ message: "success" }, {
+    return NextResponse.json({ message: "success" }, {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -50,7 +52,7 @@ export async function POST(request) {
     });
   } catch (err) {
     console.error(err);
-    return new NextResponse.json({ error: "Internal Server Error" }, {
+    return NextResponse.json({ error: "Internal Server Error" }, {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
