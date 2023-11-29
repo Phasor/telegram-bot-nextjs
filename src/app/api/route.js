@@ -16,14 +16,15 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 //   })
 
 export async function GET() {
-    return Response.json({ reply:"Hi from the api" })
+    return Response.json({ reply:"Hi from the api. You sent a get request" })
   }
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      await bot.handleUpdate(req.body);  // Process the update
-      res.status(200).send('OK');
+      // await bot.handleUpdate(req.body);  // Process the update
+      console.log(req.body)
+      res.status(200).send('Got it. You sent a post request.');
     } catch (err) {
       console.error(err);
       res.status(500).send('Internal Server Error');
