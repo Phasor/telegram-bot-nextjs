@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 Run ngrok `ngrok http 3000`
 
-https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook?url=https://846e-109-153-210-94.ngrok-free.app/api
+https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook?url=<ngrok api url>/api
 
 Make sure you add the /api at the end of the webhook url!!!
 
