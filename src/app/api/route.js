@@ -15,6 +15,8 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 //     //await ctx.reply(`Hello ${ctx.state.role}`)
 //   })
 
+// adding for updating webhook url
+
 export async function GET() {
     return Response.json({ reply:"Hi from the api. You sent a get request" })
   }
